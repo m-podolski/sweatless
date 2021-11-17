@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const logsSchema = new Schema(
   {
@@ -15,6 +15,4 @@ const logsSchema = new Schema(
   { timestamps: true }
 );
 
-const Log = mongoose.model("Log", logsSchema);
-
-module.exports = Log;
+module.exports = mongoose.model("Log", logsSchema);

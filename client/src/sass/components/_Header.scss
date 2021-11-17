@@ -1,0 +1,13 @@
+@use "../conf";
+@use "../colours";
+
+.Header {
+  margin-right: conf.raster(4);
+  @media screen and (min-width: conf.$bp-main) {
+    margin-right: conf.$content-side-space;
+  }
+  .logo-container > * {
+    border-radius: 0 conf.$roundness conf.$roundness 0;
+    overflow: hidden;
+  }
+}

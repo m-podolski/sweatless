@@ -4,7 +4,6 @@
 ## Fixed
 
 # Commit
-put db credentials into .env file
 
 ## Releases
 

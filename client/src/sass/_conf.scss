@@ -1,0 +1,95 @@
+// Base units
+
+$fontbase: 1rem;
+$leading: 1.5;
+$viewfactor: 1.5vmin;
+$leadingDisp: 1.2;
+$viewfactorDisp: $viewfactor * 0.5;
+
+$unit: calc((#{$fontbase} + #{$viewfactor}) * #{$leading});
+$scaling-convenience: 0.2;
+
+@function raster($scale) {
+  @return calc(#{$unit} * #{$scale * $scaling-convenience});
+}
+
+@function window($scale) {
+  @return calc(#{$viewfactor} * #{$scale});
+}
+
+// Layout values
+
+$bp-main: 65em;
+$bp-logo: 50em;
+$bp-settings: 40em;
+
+$nav-footer-width: raster(70);
+$nav-height: raster(10);
+$content-max-width: raster(100);
+// Aligns right margins with the left border of the button-containers
+// -> ((100% - left/right paddings) * 20%[btn-container]) + right padding
+$content-side-space: calc(((100vw - #{raster(8)}) * 0.2) + #{raster(4)});
+$block-space-vertical: raster(2);
+$block-space-horizontal: raster(4);
+$vertical-ui-max-width: raster(70);
+$button-container-width: 20%;
+$roundness: raster(0.5);
+
+// Interaction values
+
+$contentTrans: 0.2s;
+$elemTrans: 0.1s;
+
+// Private mixins
+
+@mixin fontsizes($fontbase, $leading, $viewfactor, $scale) {
+  font-size: calc(
+    (#{$fontbase} + #{$viewfactor}) * #{$scale * $scaling-convenience}
+  );
+  line-height: calc(
+    ((#{$fontbase} + #{$viewfactor}) * #{$leading}) * #{$scale *
+      $scaling-convenience}
+  );
+}
+
+// Public mixins
+
+@mixin font($weight, $style, $scale, $type) {
+  @if $type == body {
+    font-weight: $weight;
+    font-style: $style;
+    @include fontsizes($fontbase, $leading, $viewfactor, $scale);
+  }
+  @if $type == disp {
+    font-weight: $weight;
+    font-style: $style;
+    @include fontsizes($fontbase, $leadingDisp, $viewfactorDisp, $scale);
+  }
+}
+
+@mixin ui-block-parent() {
+  margin: raster(12) $block-space-horizontal;
+}
+
+@mixin ui-block() {
+  margin: $block-space-vertical 0;
+  border-radius: $roundness;
+  overflow: hidden;
+}
+
+@mixin content-ui-block() {
+  margin: $block-space-vertical $block-space-horizontal;
+  border-radius: $roundness;
+  overflow: hidden;
+}
+
+@mixin vertical-ui-block($bp) {
+  width: 100%;
+  max-width: $vertical-ui-max-width;
+  margin: $block-space-vertical auto;
+  border-radius: $roundness;
+  overflow: hidden;
+  @media screen and (min-width: $bp) {
+    max-width: unset;
+  }
+}

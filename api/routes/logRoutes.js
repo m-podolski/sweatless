@@ -1,5 +1,5 @@
 const express = require("express");
-const Log = require("../models/logs");
+const Log = require("../../models/logs");
 
 const router = express.Router();
 
@@ -13,7 +13,9 @@ router.get("/", (req, res) => {
     .then((result) => {
       res.send(result);
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      return console.log(err);
+    });
 
   // return res.status(200).json({});
 });
@@ -23,7 +25,9 @@ router.get("/all-logs", (req, res) => {
     .then((result) => {
       res.send(result);
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      return console.log(err);
+    });
 });
 
 module.exports = router;

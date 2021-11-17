@@ -1,0 +1,108 @@
+@use "../conf";
+@use "../colours";
+
+$row-height: 3.5rem;
+
+.LogInput {
+  @include conf.vertical-ui-block(conf.$bp-main);
+  margin-bottom: conf.raster(12);
+  padding: conf.raster(1);
+  gap: conf.raster(1);
+  background: colours.$content-bg-dark;
+  & .input-fields-row {
+    background: colours.$content-bg-light;
+    @media screen and (min-width: conf.$bp-main) {
+      background: unset;
+    }
+    & .field-small {
+      flex: 1 1 15%;
+    }
+    & .field-large {
+      flex: 1 1 20%;
+    }
+    & .field-x-large {
+      flex: 1 1 30%;
+    }
+    & button {
+      width: 100%;
+      height: $row-height;
+      @media screen and (min-width: conf.$bp-main) {
+        min-height: unset;
+      }
+    }
+    & .button-container > * {
+      @media screen and (min-width: conf.$bp-main) {
+        border-radius: 0 conf.$roundness conf.$roundness 0;
+      }
+    }
+  }
+  & label {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    text-align: left;
+    font-weight: 600;
+    & span {
+      display: flex;
+      align-items: center;
+      padding: conf.raster(1);
+      border-top: conf.raster(1) solid colours.$content-bg-dark;
+      @media screen and (min-width: conf.$bp-main) {
+        padding: unset;
+        border-top: unset;
+      }
+    }
+  }
+  & label:first-child span {
+    border-top: unset;
+  }
+  & input,
+  & select {
+    display: inline-block;
+    width: 100%;
+    height: $row-height;
+    border: none;
+    background: colours.$content-bg-light;
+    color: colours.$content-text-medium;
+  }
+  & input {
+    padding: conf.raster(2) conf.raster(1) conf.raster(1) conf.raster(1);
+    border-bottom: conf.raster(1) solid colours.$content-bg-light;
+  }
+  & #date {
+    // Only date input respects line-height
+    line-height: normal;
+  }
+  & select {
+    padding: conf.raster(1) conf.raster(1) conf.raster(1) conf.raster(1);
+  }
+  & label:first-child input {
+    @media screen and (min-width: conf.$bp-main) {
+      border-radius: conf.$roundness 0 0 conf.$roundness;
+    }
+  }
+  & input:focus,
+  & select:focus {
+    outline: none;
+    background: white;
+  }
+  & input:focus {
+    border-bottom: conf.raster(1) solid colours.$site-btn-pri;
+  }
+  & input.error {
+    border-bottom: conf.raster(1) dashed colours.$content-error;
+  }
+  & .error-messages p {
+    margin: conf.raster(1) 0;
+    padding: conf.raster(1);
+    background: white;
+    color: colours.$content-error;
+    border-radius: conf.$roundness;
+    & .error-fieldname {
+      font-weight: 700;
+    }
+  }
+  & ::placeholder {
+    color: colours.$content-text-medium;
+  }
+}

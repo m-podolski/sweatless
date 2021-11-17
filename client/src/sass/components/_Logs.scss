@@ -1,0 +1,40 @@
+@use "../conf";
+@use "../colours";
+
+.Logs {
+  @include conf.ui-block-parent();
+  & .row {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: stretch;
+    border-radius: conf.$roundness;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    @media screen and (min-width: conf.$bp-main) {
+      flex-flow: row nowrap;
+    }
+  }
+  & .button-row {
+    display: block;
+    padding: unset;
+    @media screen and (min-width: conf.$bp-main) {
+      display: inline-block;
+    }
+  }
+  & .button-container {
+    flex: 0 0 conf.$button-container-width;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-end;
+    overflow-wrap: unset;
+    & .button-restore {
+      width: 100%;
+    }
+    & .button-edit,
+    & .button-delete {
+      width: 50%;
+    }
+  }
+}

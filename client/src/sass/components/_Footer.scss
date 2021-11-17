@@ -1,0 +1,45 @@
+@use "../conf";
+@use "../colours";
+
+.Footer {
+  padding: unset;
+  margin: conf.raster(4) conf.raster(4) 0 conf.raster(4);
+  @include conf.font(400, normal, 2.7, body);
+  @media screen and (min-width: conf.$bp-main) {
+    margin: conf.raster(4) conf.$content-side-space 0 conf.raster(4);
+  }
+  a:not([class]) {
+    font-weight: 600;
+  }
+  & section {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: conf.raster(1);
+    max-width: 30rem;
+    margin-left: auto;
+    padding: conf.raster(2) conf.raster(2) conf.raster(4) conf.raster(2);
+    background: colours.$content-bg-dark;
+    @media screen and (min-width: conf.$bp-main) {
+      max-width: conf.$nav-footer-width;
+      margin: 0 0 0 auto;
+    }
+    & ul {
+      margin: unset;
+      list-style: none;
+      & li {
+        margin-bottom: conf.raster(1);
+      }
+    }
+  }
+  & section:first-child {
+    border-radius: conf.$roundness conf.$roundness 0 0;
+    overflow: hidden;
+  }
+  .contactinfo {
+    & li {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: conf.raster(1);
+    }
+  }
+}

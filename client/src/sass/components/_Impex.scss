@@ -1,0 +1,45 @@
+@use "../conf";
+@use "../colours";
+
+.Impex {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  @include conf.content-ui-block();
+  background: colours.$content-bg-dark;
+  @media screen and (min-width: conf.$bp-main) {
+    flex-flow: row nowrap;
+  }
+  & .wrapper {
+    margin: 0 auto;
+    padding: conf.raster(1);
+    & > * {
+      max-width: conf.$content-max-width;
+    }
+  }
+  & .button-container {
+    flex: 0 0 conf.$button-container-width;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    gap: conf.raster(1);
+    @media screen and (min-width: conf.$bp-settings) {
+      flex-flow: row nowrap;
+    }
+    @media screen and (min-width: conf.$bp-main) {
+      flex-flow: column nowrap;
+      align-items: stretch;
+    }
+    & > * {
+      flex: 1 1 100%;
+    }
+  }
+  & ul,
+  & ol {
+    margin-top: conf.raster(2);
+    font-weight: 600;
+  }
+  & p {
+    margin: conf.raster(2) 0 0 0;
+  }
+}

@@ -1,0 +1,86 @@
+@use "../conf";
+@use "../colours";
+
+.Nav {
+  display: flex;
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  padding: unset;
+  margin: 0 conf.raster(4);
+  @media screen and (min-width: conf.$bp-main) {
+    margin-right: conf.$content-side-space;
+  }
+  .logo-container {
+    flex: 1 1 auto;
+    img {
+      height: conf.$nav-height;
+      border-radius: 0 0 conf.$roundness conf.$roundness;
+      overflow: hidden;
+      box-shadow: 1px 1px 10px hsla(34, 93%, 20%, 0.3);
+    }
+    .logo-icon {
+      @media screen and (min-width: conf.$bp-logo) {
+        display: none;
+      }
+    }
+    .logo-text {
+      display: none;
+      @media screen and (min-width: conf.$bp-logo) {
+        display: block;
+      }
+    }
+  }
+  & ul {
+    flex: 1 1 auto;
+    display: flex;
+    flex-flow: row wrap;
+    max-width: 30rem;
+    height: conf.$nav-height;
+    margin: 0 0 0 auto;
+    background: colours.$content-bg-dark;
+    border-radius: 0 0 conf.$roundness conf.$roundness;
+    overflow: hidden;
+    list-style: none;
+    box-shadow: 1px 1px 10px hsla(212, 46%, 48%, 0.3);
+    @media screen and (min-width: conf.$bp-logo) {
+      flex: 1 0 auto;
+    }
+    @media screen and (min-width: conf.$bp-main) {
+      max-width: conf.$nav-footer-width;
+      margin: 0 0 0 auto;
+    }
+    & li {
+      flex: 1 1 conf.raster(10);
+      display: flex;
+      & .nav-link,
+      & .nav-link:visited {
+        flex: 1 1 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 conf.raster(1);
+        color: colours.$content-dark;
+        font-weight: 700;
+        letter-spacing: conf.raster(0.1);
+        text-decoration: none;
+        transition: color conf.$elemTrans ease-in-out,
+          background conf.$elemTrans ease-in-out;
+        cursor: pointer;
+      }
+      & .nav-link:hover,
+      & .nav-link:focus {
+        background: colours.$sweatless-primary;
+        color: colours.$sweatless-secondary;
+        outline: none;
+      }
+      & .nav-link:active,
+      & .active,
+      & .active:visited {
+        background: colours.$sweatless-secondary;
+        color: colours.$site-btn-pri;
+        font-style: italic;
+      }
+    }
+  }
+}

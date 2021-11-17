@@ -1,0 +1,232 @@
+@use 'sass:map';
+@use './conf';
+@use './colours';
+
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: colours.$site-bg-medium;
+  font-family: "Fira Sans", sans-serif;
+  @include conf.font(400, normal, 3.3, body);
+  color: colours.$content-text-medium;
+  overflow-wrap: break-word;
+  font-variant-numeric: tabular-nums;
+}
+header {
+  margin: conf.raster(4) conf.raster(4) 0 0;
+}
+main {
+  min-height: 50vh;
+}
+.content {
+  margin: conf.raster(4) conf.raster(4) 0 0;
+  padding: conf.raster(2) conf.raster(2) conf.raster(2) conf.raster(4);
+  background: colours.$site-bg-light;
+  border-radius: 0 conf.$roundness conf.$roundness 0;
+  overflow: hidden;
+  @media screen and (min-width: conf.$bp-main) {
+    margin: conf.raster(4) conf.$content-side-space conf.raster(4) 0;
+    padding: unset;
+    border-radius: conf.$roundness;
+  }
+  & .wrapper {
+    margin: 0 auto;
+    max-width: conf.$content-max-width;
+    @media screen and (min-width: conf.$bp-main) {
+      margin: 0 0 0 conf.$content-side-space;
+      padding: conf.raster(1);
+    }
+  }
+}
+%button {
+  // Flex allows centered content on other elements than <button>
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: conf.raster(1) conf.raster(2);
+  color: colours.$content-text-light;
+  border: conf.raster(0.5) solid hsla(1, 1%, 1%, 0);
+  @include conf.font(700, normal, 3.9, body);
+  letter-spacing: conf.raster(0.1);
+  text-decoration: none;
+  transition: color conf.$elemTrans ease-in-out,
+    background conf.$elemTrans ease-in-out, border conf.$elemTrans ease-in-out;
+  cursor: pointer;
+}
+@mixin button($properties) {
+  .button-#{map.get($properties, "name")} {
+    @extend %button;
+    background: map.get($properties, "dark");
+    &:hover:not(.button-disabled),
+    &:focus:not(.button-disabled) {
+      background: map.get($properties, "light");
+      color: map.get($properties, "dark");
+      border: conf.raster(0.5) solid map.get($properties, "dark");
+    }
+    &:active:not(.button-disabled),
+    &.selected:not(.button-disabled) {
+      background: map.get($properties, "light");
+      color: map.get($properties, "dark");
+      font-style: italic;
+    }
+  }
+  .button-#{map.get($properties, "name")}-down {
+    @extend %button;
+    color: map.get($properties, "dark");
+    background: map.get($properties, "light");
+    &:hover:not(.button-disabled),
+    &:focus:not(.button-disabled) {
+      border: conf.raster(0.5) solid colours.$site-btn-ind;
+    }
+    &:active:not(.button-disabled),
+    &.selected:not(.button-disabled) {
+      background: map.get($properties, "light");
+      color: map.get($properties, "dark");
+      font-style: italic;
+    }
+  }
+}
+@include button(
+  (
+    "name": "primary",
+    "dark": colours.$site-btn-pri,
+    "light": colours.$content-text-light,
+  )
+);
+@include button(
+  (
+    "name": "secondary",
+    "dark": colours.$site-btn-sec,
+    "light": colours.$content-text-light,
+  )
+);
+@include button(
+  (
+    "name": "tertiary",
+    "dark": colours.$site-btn-ter,
+    "light": colours.$content-text-light,
+  )
+);
+.button-loading {
+  @extend %button;
+  background: colours.$content-text-light;
+  color: colours.$site-btn-pri;
+  font-style: italic;
+  &:hover:not(.button-disabled),
+  &:focus:not(.button-disabled),
+  &:active:not(.button-disabled) {
+    border: conf.raster(0.5) solid colours.$content-text-light;
+  }
+}
+.button-disabled {
+  filter: grayscale(100%) contrast(35%) brightness(150%);
+}
+::selection {
+  background: colours.$sweatless-primary;
+}
+*:focus:not([class]) {
+  outline: conf.raster(0.25) dashed colours.$site-btn-pri;
+}
+a:not([class]),
+a:visited:not([class]) {
+  color: colours.$site-btn-pri;
+  font-weight: 600;
+}
+a:hover:not([class]),
+a:focus:not([class]) {
+  color: colours.$site-btn-sec;
+}
+a:active:not([class]) {
+  color: colours.$site-btn-sec;
+  background: unset;
+}
+h1 {
+  @include conf.font(700, normal, 3.3, body);
+  color: colours.$content-dark;
+}
+h2 {
+  margin: conf.raster(4) 0 conf.raster(4) 0;
+  text-align: center;
+  @include conf.font(700, normal, 5.7, body);
+  color: colours.$content-dark;
+}
+h3 {
+  margin: conf.raster(4) 0 conf.raster(2) 0;
+  @include conf.font(700, normal, 3.9, body);
+  color: colours.$content-dark;
+}
+.ui-heading {
+  @extend h3;
+  margin: conf.raster(1) conf.raster(1) conf.raster(2) conf.raster(1);
+}
+h4 {
+  margin: conf.raster(4) 0 conf.raster(2) 0;
+  @include conf.font(700, normal, 3.9, body);
+  color: colours.$content-text-dark;
+}
+ol,
+ul {
+  margin: conf.raster(2) 0 0 conf.raster(4);
+  padding: unset;
+  list-style-position: outside;
+}
+p {
+  margin: conf.raster(2) 0;
+}
+em {
+  font-weight: 500;
+  font-style: italic;
+}
+strong {
+  font-weight: 600;
+}
+blockquote {
+  padding: conf.raster(2) conf.raster(4);
+  font-weight: 500;
+  font-style: italic;
+}
+.footnote-index {
+  position: relative;
+  top: conf.raster(-0.25);
+  font-weight: 600;
+  text-decoration: none;
+}
+.footnotes {
+  @include conf.font(400, normal, 2.7, body);
+}
+.sr-only:not(:focus):not(:active) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  // Set colour to remove from a11y issues
+  color: black;
+}
+.off-screen {
+  position: absolute;
+  left: -100vw;
+}
+.skip-link {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  margin-left: conf.raster(4);
+  padding: 0.5rem;
+  background: white;
+  color: colours.$site-btn-pri;
+  font-weight: 600;
+  transform: translateY(-10rem);
+  transition: transform 0.2s ease-in-out;
+}
+.skip-link:focus {
+  outline: conf.raster(0.25) dashed colours.$site-btn-pri;
+  transform: translateY(0em);
+}

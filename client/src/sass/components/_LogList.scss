@@ -1,0 +1,48 @@
+@use "../conf";
+@use "../colours";
+
+.LogList {
+  @include conf.ui-block();
+  ul {
+    margin: unset;
+  }
+  & .row {
+    margin: 0 0 conf.raster(1) 0;
+  }
+  & .row:nth-child(odd) {
+    background: colours.$content-bg-light;
+  }
+  & .row:nth-child(even) {
+    background: colours.$content-bg-dark;
+  }
+  & .log-deleted:nth-child(odd),
+  & .log-deleted:nth-child(even) {
+    background: hsl(100, 0%, 80%);
+    color: grey;
+  }
+  & dl {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: conf.raster(0.5);
+    width: 100%;
+    margin: unset;
+    padding: conf.raster(1);
+    @media screen and (min-width: conf.$bp-main) {
+      grid-auto-columns: 1fr;
+      grid-template-rows: repeat(2, auto);
+    }
+    & dt {
+      font-weight: 600;
+      @media screen and (min-width: conf.$bp-main) {
+        grid-row: 1/2;
+      }
+    }
+    & dd {
+      margin: unset;
+    }
+  }
+  & button {
+    min-height: conf.raster(8);
+    height: 100%;
+  }
+}
