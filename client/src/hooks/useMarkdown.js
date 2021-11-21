@@ -4,7 +4,7 @@ export default function useMarkdown(fileContent) {
   const [markdown, setMarkdown] = useState(null);
 
   useEffect(() => {
-    (async function getMarkdown() {
+    (async () => {
       const response = await fetch(fileContent);
       const text = await response.text();
       setMarkdown(text);

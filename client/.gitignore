@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+# /node_modules
 /.pnp
 .pnp.js
 /.yarn/*
@@ -23,8 +23,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-/src/assets/fonts
 *.jpg
 *.png
+!/public/*.png
 *.gif
 *.pdf

@@ -1,6 +1,11 @@
 import React from "react";
 
-function LogListButtons({ log, editLog, deleteLog, restoreLog }) {
+export default function LogListButtons({
+  log,
+  editLog,
+  deleteLog,
+  restoreLog,
+}) {
   if (log.deleted === true) {
     return (
       <div className="button-container">
@@ -8,7 +13,7 @@ function LogListButtons({ log, editLog, deleteLog, restoreLog }) {
           type="button"
           className="button-primary button-row button-restore"
           onClick={() => {
-            restoreLog(log.key);
+            restoreLog(log.data[0].value);
           }}
         >
           Restore
@@ -22,7 +27,7 @@ function LogListButtons({ log, editLog, deleteLog, restoreLog }) {
           type="button"
           className="button-tertiary button-row button-edit"
           onClick={() => {
-            editLog(log.key);
+            editLog(log.data[0].value);
           }}
         >
           Edit
@@ -31,7 +36,7 @@ function LogListButtons({ log, editLog, deleteLog, restoreLog }) {
           type="button"
           className="button-secondary button-row button-delete"
           onClick={() => {
-            deleteLog(log.key);
+            deleteLog(log.data[0].value);
           }}
         >
           Delete
@@ -40,5 +45,3 @@ function LogListButtons({ log, editLog, deleteLog, restoreLog }) {
     );
   }
 }
-
-export default LogListButtons;

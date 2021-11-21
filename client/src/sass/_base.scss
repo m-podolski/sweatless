@@ -1,6 +1,6 @@
-@use 'sass:map';
-@use './conf';
-@use './colours';
+@use "sass:map";
+@use "./conf";
+@use "./colours";
 
 * {
   box-sizing: border-box;
@@ -21,6 +21,10 @@ header {
 }
 main {
   min-height: 50vh;
+  margin: conf.raster(4) conf.raster(4) 0;
+}
+.content-page {
+  margin: 0;
 }
 .content {
   margin: conf.raster(4) conf.raster(4) 0 0;
@@ -145,7 +149,7 @@ a:active:not([class]) {
   background: unset;
 }
 h1 {
-  @include conf.font(700, normal, 3.3, body);
+  @include conf.font(700, normal, 6.6, body);
   color: colours.$content-dark;
 }
 h2 {
@@ -189,14 +193,16 @@ blockquote {
   font-weight: 500;
   font-style: italic;
 }
+.footnotes {
+  margin-top: unset;
+  padding: conf.raster(2) conf.raster(2) conf.raster(2) 0;
+  @include conf.font(400, normal, 2.7, body);
+}
 .footnote-index {
   position: relative;
   top: conf.raster(-0.25);
   font-weight: 600;
   text-decoration: none;
-}
-.footnotes {
-  @include conf.font(400, normal, 2.7, body);
 }
 .sr-only:not(:focus):not(:active) {
   position: absolute;
@@ -229,4 +235,62 @@ blockquote {
 .skip-link:focus {
   outline: conf.raster(0.25) dashed colours.$site-btn-pri;
   transform: translateY(0em);
+}
+.form-container {
+  @include conf.ui-block();
+  max-width: conf.$vertical-ui-max-width;
+}
+form {
+  border-radius: conf.$roundness;
+  overflow: hidden;
+  background: colours.$content-bg-dark;
+  label {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    text-align: left;
+    font-weight: 600;
+    span {
+      display: flex;
+      align-items: center;
+      padding: conf.raster(1);
+    }
+    input,
+    select {
+      width: 100%;
+      height: conf.$form-row-height;
+      border: none;
+      background: colours.$content-bg-light;
+      color: colours.$content-text-medium;
+    }
+    input {
+      padding: conf.raster(2) conf.raster(1) conf.raster(1) conf.raster(1);
+      border-bottom: conf.raster(1) solid colours.$content-bg-light;
+    }
+    select {
+      padding: conf.raster(1) conf.raster(1) conf.raster(1) conf.raster(1);
+    }
+    input:focus,
+    select:focus {
+      outline: none;
+      background: white;
+    }
+    input:focus {
+      border-bottom: conf.raster(1) solid colours.$site-btn-ind;
+    }
+    input.error {
+      border-bottom: conf.raster(1) dashed colours.$content-error;
+    }
+    ::placeholder {
+      color: colours.$content-text-medium;
+    }
+    input[type="password"] {
+      font-family: Verdana;
+      letter-spacing: 2px;
+    }
+  }
+  button {
+    width: 100%;
+    height: conf.$form-row-height;
+  }
 }

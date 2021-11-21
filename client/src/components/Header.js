@@ -1,7 +1,7 @@
 import { ReactComponent as Sweatlogo } from "../assets/svg/sweatlogo-tagline-paths.svg";
 import "../sass/components/_Header.scss";
 
-function Header() {
+export default function Header() {
   return (
     <header className="Header">
       <div className="logo-container">
@@ -10,5 +10,3 @@ function Header() {
     </header>
   );
 }
-
-export default Header;

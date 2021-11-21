@@ -1,4 +1,9 @@
-function ButtonToggle({ label, labelToggle, toggleable, handleToggle }) {
+export default function ButtonToggle({
+  label,
+  labelToggle,
+  toggleable,
+  handleToggle,
+}) {
   return (
     <button
       type="button"
@@ -9,5 +14,3 @@ function ButtonToggle({ label, labelToggle, toggleable, handleToggle }) {
     </button>
   );
 }
-
-export default ButtonToggle;

@@ -1,105 +1,102 @@
-import db from "./database";
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-
+import { Fragment, useState, useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { useAuth } from "./hooks/useAuth";
+import { useFetch } from "./hooks/useFetch";
+import Authentication from "./components/Authentication";
 import Nav from "./components/Nav";
+import Signin from "./pages/Signin";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
 import Changelog from "./pages/Changelog";
+import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
-
-import { fieldsConfig, makeInputModelFromDB } from "./models";
+import Errors from "./components/Errors";
+import { makeInputModelFromDB } from "./util/models";
 import "./sass/App.scss";
 
-function App() {
-  // eslint-disable-next-line
-  const [fields, setFields] = useState(fieldsConfig);
-
+export default function App() {
+  const navigate = useNavigate();
+  const [settings, setSettings] = useState(null);
   const [logs, setLogs] = useState([]);
+  const [logStats, setLogStats] = useState({
+    totals: [],
+    proportions: [],
+    timeline: [],
+    graph: [],
+  });
+
+  const { auth } = useAuth();
+  const [doFetch, fetchError] = useFetch({
+    message: "Connection Error",
+    errors: "User data could not be fetched",
+  });
 
   useEffect(() => {
-    (async function readRecords() {
-      const databaseLogs = await db.logs.toArray();
-      setLogs(
-        databaseLogs.map((log) => {
-          return makeInputModelFromDB(fields, log);
-        }),
-      );
-    })();
-    // eslint-disable-next-line
-  }, []);
-
-  const initSettings = {
-    key: "settings",
-    logs: {
-      label: "Logs",
-      input: { label: "Input", show: true },
-      list: { label: "List", show: true },
-    },
-    stats: {
-      label: "Log Statistics",
-      totals: { label: "Log Totals", show: true },
-      proportions: { label: "Training Proportions", show: true },
-      timeline: { label: "Log Timeline", show: true, scale: 60 },
-      graph: { label: "Results Graph", show: true },
-    },
-  };
-  const [settings, setSettings] = useState(initSettings);
-
-  useEffect(() => {
-    (async function readSettings() {
-      const databaseSettings = await db.settings.toArray();
-      if (databaseSettings.length > 0) {
-        setSettings(databaseSettings[0]);
+    (async () => {
+      const response = await doFetch();
+      if (response) {
+        setSettings(response.user.settings);
+        setLogs(
+          response.user.logs.map((log) => {
+            return makeInputModelFromDB(
+              response.user.settings.logs.fields,
+              log,
+            );
+          }),
+        );
+        setLogStats(response.user.statistics);
       }
     })();
-  }, []);
+    // eslint-disable-next-line
+  }, [auth]);
 
   useEffect(() => {
-    try {
-      (async function fetchData() {
-        const response = await fetch("http://localhost:3001/logs/all-logs");
-        console.log(response);
-        const json = await response.json();
-        console.log(json);
-      })();
-    } catch (error) {
-      throw new Error(error);
-    }
-  }, []);
+    window.addEventListener("storage", (e) => {
+      if (e.key === "sweatless-logout") {
+        navigate("/signin");
+      }
+    });
+  });
 
   return (
-    <React.Fragment>
-      <Router>
-        <Nav />
-        <Switch>
-          <Route path="/sweatless/about">
-            <About />
-          </Route>
-          <Route path="/sweatless/settings">
-            <Settings
-              fields={fields}
-              settings={settings}
-              setSettings={setSettings}
-            />
-          </Route>
-          <Route path="/sweatless/changelog">
-            <Changelog />
-          </Route>
-          <Route path="/sweatless/">
-            <Dashboard
-              fields={fields}
-              logs={logs}
-              setLogs={setLogs}
-              settings={settings}
-            />
-          </Route>
-        </Switch>
-        <Footer />
-      </Router>
-    </React.Fragment>
+    <Fragment>
+      <Nav />
+      <Errors error={fetchError} />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Authentication>
+              <Dashboard
+                settings={settings}
+                logs={logs}
+                setLogs={setLogs}
+                logStats={logStats}
+                setLogStats={setLogStats}
+              />
+            </Authentication>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <Authentication>
+              <Settings
+                settings={settings}
+                setSettings={setSettings}
+                logs={logs}
+                setLogStats={setLogStats}
+              />
+            </Authentication>
+          }
+        />
+        <Route path="/signin" element={<Signin />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/changelog" element={<Changelog />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Footer />
+    </Fragment>
   );
 }
-
-export default App;

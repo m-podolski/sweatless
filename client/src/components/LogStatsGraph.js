@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { useRef, useEffect } from "react";
 
-function LogStatsGraph({ graph, datasetKeys, heading }) {
+export default function LogStatsGraph({ graph, datasetKeys, heading }) {
   const chartRef = useRef(null);
   const width = 400;
   const height = 300;
@@ -137,5 +137,3 @@ function LogStatsGraph({ graph, datasetKeys, heading }) {
     </section>
   );
 }
-
-export default LogStatsGraph;

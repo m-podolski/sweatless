@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { useRef, useEffect } from "react";
 
-function LogStatsProportions({ proportions, heading }) {
+export default function LogStatsProportions({ dataset, heading }) {
   const chartRef = useRef(null);
   const width = 400;
   const height = 80;
@@ -11,19 +11,23 @@ function LogStatsProportions({ proportions, heading }) {
     const defs = svg.select("defs");
 
     // Using props directly throws error
-    const dataset = proportions;
+    const datasetLocal = dataset;
 
     // Scales
     const x = d3.scaleLinear().domain([0, 100]).range([0, width]);
 
     const colours = d3
       .scaleOrdinal()
-      .domain(dataset.map((d) => d.name))
+      .domain(datasetLocal.map((d) => d.label))
       .range(d3.schemeDark2)
       .unknown("#ccc");
 
     // Bars
-    const g = svg.selectAll("g").data(dataset).join("g").attr("tabindex", "0");
+    const g = svg
+      .selectAll("g")
+      .data(datasetLocal)
+      .join("g")
+      .attr("tabindex", "0");
 
     g.append("title").text(
       (d) => `${d.label}, ${d.count} Logs, ${d.percent} Percent`,
@@ -53,7 +57,7 @@ function LogStatsProportions({ proportions, heading }) {
     // Patterns
     const pattern = defs
       .selectAll("pattern")
-      .data(dataset)
+      .data(datasetLocal)
       .join("pattern")
       .attr("id", (d, i) => `pattern-proportions-${i}`)
       .attr("width", "8")
@@ -65,15 +69,15 @@ function LogStatsProportions({ proportions, heading }) {
       .append("rect")
       .attr("width", "4")
       .attr("height", "8")
-      .attr("fill", (d) => colours(d.name));
+      .attr("fill", (d) => colours(d.label));
 
     pattern
       .append("rect")
       .attr("width", "4")
       .attr("height", "8")
       .attr("transform", "translate(4,0)")
-      .attr("fill", (d) => d3.color(colours(d.name)).darker(0.8));
-  }, [proportions]);
+      .attr("fill", (d) => d3.color(colours(d.label)).darker(0.8));
+  }, [dataset]);
 
   return (
     <section>
@@ -91,5 +95,3 @@ function LogStatsProportions({ proportions, heading }) {
     </section>
   );
 }
-
-export default LogStatsProportions;

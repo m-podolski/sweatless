@@ -1,117 +1,150 @@
-import db from "../database";
-import React, { useState } from "react";
+import { useReducer } from "react";
+import { useFetch } from "../hooks/useFetch";
 import LogInput from "./LogInput";
 import LogList from "./LogList";
 import {
-  findTrainingField,
-  makeInputModelFromFields,
+  findOptionField,
+  makeInputModelFromConfig,
   makeDbModelFromInput,
-} from "../models";
+} from "../util/models";
 import "../sass/components/_Logs.scss";
 
-function Logs({ fields, logs, setLogs, settings }) {
-  const initTraining = fields.training.options.easyrun;
-  const [trainingOption, setTrainingOption] = useState(initTraining.name);
+function inputReducer(input, action) {
+  let selectOptions;
+  let chosenOption;
+  switch (action.type) {
+    case "UPDATE_VALUE":
+      const updated = { ...input };
+      updated.model.data[action.index] = {
+        ...updated.model.data[action.index],
+        ...action.payload,
+      };
+      return updated;
+    case "UPDATE_FIELDS":
+      selectOptions = action.fields[2].options;
+      chosenOption = findOptionField(selectOptions, action.payload);
+      // create empty input with new optional fields and fill other values in
+      const model = makeInputModelFromConfig(action.fields, chosenOption);
+      model.data.forEach((updatedField) => {
+        if (
+          action.fields.find((field) => field.label === updatedField.label) ||
+          updatedField.label === "id"
+        ) {
+          const currentI = input.model.data.findIndex(
+            (currentField) => updatedField.label === currentField.label,
+          );
+          updatedField.value = input.model.data[currentI].value;
+        }
+      });
+      model.data[3] = { ...model.data[3], value: action.payload };
+      return { ...input, selectOption: chosenOption, model };
+    case "LOAD":
+      selectOptions = action.fields[2].options;
+      chosenOption = findOptionField(
+        selectOptions,
+        action.payload.data[3].value,
+      );
+      return {
+        model: action.payload,
+        selectOption: chosenOption,
+        mode: "SAVE",
+      };
+    case "RESET":
+      return initInput(action.fields);
+    default:
+      throw new Error("'inputReducer' must be called with valid 'action.type'");
+  }
+}
 
-  const [input, setInput] = useState(
-    makeInputModelFromFields(
-      fields,
-      fields.training.options[trainingOption].fields,
-    ),
-  );
-  const [logMode, setLogMode] = useState("Log");
+function initInput(fields) {
+  return {
+    model: makeInputModelFromConfig(fields, 0),
+    selectOption: 0,
+    mode: "LOG",
+  };
+}
 
-  function handleInput({ target: { id, value } }) {
+export default function Logs({
+  settings: {
+    logs: { input: inputSettings, list: listSettings, fields },
+  },
+  logs,
+  setLogs,
+  setLogStats,
+}) {
+  const [input, dispatchInput] = useReducer(inputReducer, fields, initInput);
+  const [doFetch, fetchError] = useFetch({
+    message: "Connection Error",
+    errors: "Data could not be submitted",
+  });
+
+  function handleInput({ target: { id, value } }, j) {
     switch (id) {
-      case "training":
-        // remove the conditional fields from the previous selection but keep the other data
-        const clearedInput = Object.keys(input).reduce((acc, property) => {
-          if (Object.keys(fields).includes(property)) {
-            acc[property] = input[property];
-          }
-          return acc;
-        }, {});
-
-        const chosenOption = findTrainingField(fields, value);
-        const optionInput = makeInputModelFromFields(
-          fields.training.options[chosenOption].fields,
-        );
-        setTrainingOption(chosenOption);
-
-        setInput({
-          ...clearedInput,
-          [id]: { ...clearedInput[id], value: value },
-          ...optionInput,
-        });
+      case "Training":
+        dispatchInput({ type: "UPDATE_FIELDS", fields, payload: value });
         break;
       default:
-        setInput({
-          ...input,
-          [id]: { ...input[id], value: value },
-        });
+        dispatchInput({ type: "UPDATE_VALUE", index: j, payload: { value } });
     }
   }
 
-  function saveLog(e) {
+  async function saveLog(e) {
     e.preventDefault();
-    const clearedLogs = logs.filter(
-      (log) => log.hasOwnProperty("deleted") === false,
-    );
-    switch (logMode) {
-      case "Save":
+    const clearedLogs = logs.filter((log) => log.deleted === false);
+    switch (input.mode) {
+      case "SAVE":
         const updatedLogs = clearedLogs.map((log) =>
-          log.key === input.key ? input : log,
+          log.data[0].value === input.model.data[0].value ? input.model : log,
         );
         setLogs(updatedLogs);
-        setLogMode("Log");
-
-        (async function updateRecord(log) {
-          await db.logs.put(log);
-        })(makeDbModelFromInput(input));
+        const { statistics: statsPUT } = await doFetch(
+          "PUT",
+          `logs/${input.model.data[0].value}`,
+          makeDbModelFromInput(fields, input.model),
+        );
+        setLogStats(statsPUT);
         break;
       default:
-        const defaultInput = {
-          ...input,
-          key: { value: Date.now() },
-        };
-        setLogs([...clearedLogs, defaultInput]);
-
-        (async function makeRecord(log) {
-          await db.logs.put(log);
-        })(makeDbModelFromInput(defaultInput));
+        const { id: logId, statistics: statsPOST } = await doFetch(
+          "POST",
+          "logs",
+          makeDbModelFromInput(fields, input.model),
+        );
+        setLogStats(statsPOST);
+        const inputWithId = { ...input.model };
+        inputWithId.data[0].value = logId;
+        clearedLogs.push(inputWithId);
+        setLogs(clearedLogs);
     }
-    setInput(makeInputModelFromFields(fields, initTraining.fields));
-    setTrainingOption(initTraining.name);
+    dispatchInput({ type: "RESET", fields });
   }
 
-  function editLog(logKey) {
-    const logToEdit = logs.find((log) => log.key === logKey);
-    const chosenOption = findTrainingField(fields, logToEdit.training.value);
-    setTrainingOption(chosenOption);
-    setInput(logToEdit);
-    setLogMode("Save");
+  function editLog(logId) {
+    const logToEdit = logs.find((log) => log.data[0].value === logId);
+    dispatchInput({ type: "LOAD", fields, payload: logToEdit });
   }
 
   return (
     <section className="Logs">
       <h2 className="sr-only">Logs</h2>
-      {settings.logs.input.show ? (
+      {inputSettings.show ? (
         <LogInput
           fields={fields}
           input={input}
-          setInput={setInput}
+          dispatchInput={dispatchInput}
           handleInput={handleInput}
-          trainingOption={trainingOption}
           saveLog={saveLog}
-          logMode={logMode}
+          saveLogError={fetchError}
         />
       ) : null}
-
-      {settings.logs.list.show ? (
-        <LogList logs={logs} setLogs={setLogs} editLog={editLog} />
+      {listSettings.show ? (
+        <LogList
+          logs={logs}
+          setLogs={setLogs}
+          setLogStats={setLogStats}
+          editLog={editLog}
+        />
       ) : null}
     </section>
   );
 }
-
-export default Logs;

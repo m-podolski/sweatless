@@ -2,7 +2,6 @@
 @use "../colours";
 
 .Logs {
-  @include conf.ui-block-parent();
   & .row {
     display: flex;
     flex-flow: column nowrap;

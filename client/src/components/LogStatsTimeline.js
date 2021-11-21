@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { useRef, useEffect } from "react";
 
-function LogStatsTimeline({ timeline, heading }) {
+export default function LogStatsTimeline({ timeline, heading }) {
   const chartRef2 = useRef(null);
   const width = 400;
   const height = 80;
@@ -98,5 +98,3 @@ function LogStatsTimeline({ timeline, heading }) {
     </section>
   );
 }
-
-export default LogStatsTimeline;

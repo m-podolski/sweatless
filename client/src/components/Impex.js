@@ -1,57 +1,28 @@
-import db from "../database";
-import { exportDB, importInto } from "dexie-export-import";
 import { useState } from "react";
 import ButtonExport from "./ButtonExport";
-import ButtonImport from "./ButtonImport";
 import "../sass/components/_Impex.scss";
 
-function Impex({ fields }) {
-  const [exportDbStatus, setExportDbStatus] = useState("idle");
-  const [exportDbData, setExportDbData] = useState("");
-
-  async function exportDb() {
-    setExportDbStatus("loading");
-    const blob = await exportDB(db);
-    const json = await blob.text();
-    setExportDbData({
-      type: "json",
-      data: `data:application/json,${encodeURI(json)}`,
-    });
-    setExportDbStatus("ready");
-  }
-
-  const [importDbStatus, setImportDbStatus] = useState("idle");
-
-  async function importDb({ target: { files } }) {
-    setImportDbStatus("loading");
-    const blob = files[0];
-    await importInto(db, blob);
-    setImportDbStatus("ready");
-  }
-
+export default function Impex({ logFields, logs }) {
   const [exportCSVStatus, setExportCSVStatus] = useState("idle");
   const [exportCSVData, setExportCSVData] = useState("");
 
   async function exportCSV() {
     setExportCSVStatus("loading");
-    const blob = await exportDB(db);
-    const json = await blob.text();
-
-    // Gather all fields including dynamic ones
-    const staticFields = ["key", "date", "duration", "training", null, "notes"];
     let dynamicFields = [];
-    Object.keys(fields.training.options).forEach((option) => {
+    logFields[2].options.forEach((option) => {
       // Check for options with empty fields object
-      if (fields.training.options[option].fields === false) {
-        return;
-      } else {
-        dynamicFields.push(Object.keys(fields.training.options[option].fields));
+      if (option.fields.length) {
+        option.fields.forEach((field) => dynamicFields.push(field.label));
       }
     });
-    dynamicFields = [...new Set(dynamicFields.flat())];
-    const allFields = staticFields.flatMap((field) => {
-      return field === null ? dynamicFields : field;
-    });
+    dynamicFields = [...new Set(dynamicFields)];
+    const allFields = logFields
+      .reduce((allFields, field) => {
+        allFields.push(field.label);
+        if (field.options.length) allFields.push(dynamicFields);
+        return allFields;
+      }, [])
+      .flat();
 
     // Write rows from JSON
     let csv = "";
@@ -60,15 +31,14 @@ function Impex({ fields }) {
     });
     csv += "\n";
 
-    JSON.parse(json).data.data[0].rows.forEach((row) => {
-      // Row variable allows for modifications without iterating all csv
+    logs.forEach((row) => {
       let csvRow = "";
-      allFields.forEach((field, i) => {
-        const logValue = row[field];
-        if (logValue) {
-          csvRow += logValue.toString().includes(",")
-            ? `"${logValue}",`
-            : `${logValue},`;
+      allFields.forEach((column, i) => {
+        const logProp = row.data.find((field) => field.label === column);
+        if (logProp) {
+          csvRow += logProp.value.toString().includes(",")
+            ? `"${logProp.value}",`
+            : `${logProp.value},`;
         } else {
           csvRow += ",";
         }
@@ -88,43 +58,11 @@ function Impex({ fields }) {
       <div className="wrapper">
         <h2 className="ui-heading">Import/Export</h2>
         <p>
-          Because Sweatless stores your data in your browsers built-in database
-          you may want to make a backup if:
-        </p>
-        <ol>
-          <li>
-            You want to clear your saved site-data (e.g. you would delete your
-            logs otherwise)
-          </li>
-          <li>You want to deinstall your browser entirely</li>
-          <li>You want to transfer your logs from one browser to another</li>
-        </ol>
-        <p>
-          Additionally there is also the option to save your logs as a CSV file
-          which can be used with all spread sheet software like Google Sheets or
-          MS Excel.
-        </p>
-        <p>
-          <strong>
-            To save multiple backups or to see the newly imported data you have
-            to refresh your browser!
-          </strong>
+          Save your logs as a CSV file which can be used with all spread sheet
+          software like Google Sheets or MS Excel.
         </p>
       </div>
       <div className="button-container">
-        <ButtonExport
-          exportStatus={exportDbStatus}
-          handleExport={exportDb}
-          file={exportDbData}
-          label={"Backup"}
-          className={"button-primary"}
-        />
-        <ButtonImport
-          importStatus={importDbStatus}
-          handleImport={importDb}
-          label={"Backup"}
-          className={"button-primary"}
-        />
         <ButtonExport
           exportStatus={exportCSVStatus}
           handleExport={exportCSV}
@@ -136,5 +74,3 @@ function Impex({ fields }) {
     </section>
   );
 }
-
-export default Impex;

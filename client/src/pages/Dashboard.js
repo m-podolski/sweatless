@@ -1,24 +1,54 @@
-import React from "react";
-import Header from "../components/Header";
 import Logs from "../components/Logs";
-import LogStats from "../components/LogStats";
+import LogStatsTotals from "../components/LogStatsTotals";
+import LogStatsProportions from "../components/LogStatsProportions";
+import LogStatsTimeline from "../components/LogStatsTimeline";
+import LogStatsGraph from "../components/LogStatsGraph";
+import "../sass/components/_LogStats.scss";
 
-function Dashboard({ fields, logs, setLogs, settings }) {
-  return (
-    <React.Fragment>
-      {logs.length > 0 ? null : <Header />}
-      <main aria-live="polite" id="main" className="main">
+export default function Dashboard({
+  settings,
+  logs,
+  setLogs,
+  logStats,
+  setLogStats,
+}) {
+  if (logs && settings) {
+    return (
+      <main aria-live="polite" id="main">
         <h1 className="sr-only">Dashboard</h1>
-        <LogStats fields={fields} logs={logs} settings={settings} />
+        <section className="LogStats">
+          <h2 className="sr-only">Log Statistics</h2>
+          {settings.stats.diagrams.show ? (
+            <div className="diagram-grid">
+              {/* <LogStatsGraph
+            dataset={stats.trainingGraph.dataset}
+            datasetKeys={stats.trainingGraph.datasetKeys}
+            heading={`Results Graph (12 Months)`}
+          />
+          <LogStatsTimeline
+            fields={settings.logs.fields}
+            dataset={stats.trainingTimeline.dataset}
+            heading={`Log Timeline (60 Days)`}
+          />*/}
+              <LogStatsProportions
+                dataset={logStats.proportions}
+                heading="Training Proportions (%)"
+              />
+            </div>
+          ) : null}
+          {settings.stats.totals.show ? (
+            <LogStatsTotals dataset={logStats.totals} heading="Log Totals" />
+          ) : null}
+        </section>
         <Logs
-          fields={fields}
+          settings={settings}
           logs={logs}
           setLogs={setLogs}
-          settings={settings}
+          setLogStats={setLogStats}
         />
       </main>
-    </React.Fragment>
-  );
+    );
+  } else {
+    return null;
+  }
 }
-
-export default Dashboard;

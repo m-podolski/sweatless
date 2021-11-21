@@ -1,215 +1,165 @@
-import React, { useState, useRef, useEffect } from "react";
-import { decPlaces2HoursToTime, minutesToTime } from "../library";
+import React, { useState, useEffect, useRef } from "react";
+import InputField from "../components/InputField";
+import Errors from "../components/Errors";
+import { hoursDec2ToTime, minutesToTime } from "../util/dateAndTime";
+import ReactMarkdown from "react-markdown";
 import "../sass/components/_LogInput.scss";
 
-function LogInput({
+export default function LogInput({
   fields,
   input,
-  setInput,
+  dispatchInput,
   handleInput,
-  trainingOption,
   saveLog,
-  logMode,
+  saveLogError,
 }) {
-  let dynamicFields = fields.training.options[trainingOption].fields;
   const [errorFields, setErrorFields] = useState([]);
 
-  function formatDuration({ target: { value } }) {
-    let formattedValue = value.trim();
-    const hoursPeriodHours = formattedValue.match(/^(\d)[.,](\d{1,2})$/);
-    const minutes = formattedValue.match(/^\d{1,3}$/);
+  let optionalFields = [];
+  const footnotes = {
+    footnoteIndex: 0,
+    mark(field) {
+      this.footnoteIndex++;
+      field.footnoteIndex = this.footnoteIndex;
+    },
+  };
+  const inputFields = fields.reduce((inputFields, field) => {
+    if (field.footnote) footnotes.mark(field);
+    inputFields.push(field);
+    if (field.type === "select") {
+      field.options[input.selectOption].fields.forEach((optionField) => {
+        if (optionField.footnote) footnotes.mark(optionField);
+        inputFields.push(optionField);
+        optionalFields.push(optionField.label);
+      });
+    }
+    return inputFields;
+  }, []);
 
-    if (hoursPeriodHours) {
-      formattedValue = decPlaces2HoursToTime(hoursPeriodHours[0]);
+  function formatDuration({ target: { id, value } }, j) {
+    if (id === "Duration") {
+      let formattedValue = value.trim();
+      const hoursPeriodHours = formattedValue.match(/^(\d)[.,](\d{1,2})$/);
+      const minutes = formattedValue.match(/^\d{1,3}$/);
+      if (hoursPeriodHours) {
+        formattedValue = hoursDec2ToTime(hoursPeriodHours[0]);
+      }
+      if (minutes) {
+        formattedValue = minutesToTime(minutes);
+      }
+      dispatchInput({
+        type: "UPDATE_VALUE",
+        index: j,
+        payload: { value: formattedValue },
+      });
     }
-    if (minutes) {
-      formattedValue = minutesToTime(minutes);
-    }
-    setInput({
-      ...input,
-      duration: { ...input.duration, value: formattedValue },
-    });
   }
 
-  function validateField({
-    target: {
-      id,
-      validity: { valid },
+  function validateField(
+    {
+      target: {
+        type,
+        id,
+        value,
+        validity: { valid },
+      },
     },
-  }) {
-    if (valid === true) {
-      setInput((currentInput) => {
-        return {
-          ...currentInput,
-          [id]: {
-            ...currentInput[id],
-            valid: true,
-          },
-        };
-      });
-      setErrorFields([...errorFields.filter((field) => field.name !== id)]);
-    } else {
-      setInput((currentInput) => {
-        return {
-          ...currentInput,
-          [id]: {
-            ...currentInput[id],
-            valid: false,
-          },
-        };
-      });
-      const fieldErrorMsg = Object.keys(fields).includes(id)
-        ? fields[id].errorMsg
-        : fields.training.options[trainingOption].fields[id].errorMsg;
-      setErrorFields([
-        ...errorFields.filter((field) => field.name !== id),
-        { name: id, label: input[id].label, errorMsg: fieldErrorMsg },
-      ]);
+    j,
+  ) {
+    if (["date", "select"].includes(type) === false) {
+      if (valid === true) {
+        dispatchInput({
+          type: "UPDATE_VALUE",
+          index: j,
+          payload: { valid: true },
+        });
+        setErrorFields([...errorFields.filter((field) => field.label !== id)]);
+      } else {
+        dispatchInput({
+          type: "UPDATE_VALUE",
+          index: j,
+          payload: { valid: false },
+        });
+        setErrorFields([
+          ...errorFields.filter((field) => field.label !== id),
+          { label: id, errorMsg: input.model.data[j].errorMsg },
+        ]);
+      }
     }
   }
 
   function clearErrorFields() {
     setErrorFields((prevErrorFields) => {
-      return prevErrorFields.filter((field) => {
-        return Object.keys(fields).includes(field.name);
-      });
+      const nonOptionalFields = fields.map((field) => field.label);
+      return prevErrorFields.filter((errorField) =>
+        nonOptionalFields.includes(errorField.label),
+      );
     });
   }
 
-  useEffect(() => {
-    if (logMode === ("Save" || "Log")) {
-      entryRef.current.focus();
-    }
-  }, [logMode]);
+  const entryRef = useRef([]);
 
-  const entryRef = useRef(null);
+  useEffect(() => {
+    entryRef.current[1].focus();
+    // if (["SAVE", "LOG"].includes(inputR.mode)) {
+    // }
+  }, [input.mode]);
 
   return (
     <section className="LogInput">
       <h3 className="sr-only">Log Input</h3>
       <form onSubmit={saveLog} noValidate>
-        <div className="error-messages">
-          {errorFields.map((field) => (
-            <p key={field.name} id={`error-msg-${field.name}`}>
-              <span className="error-fieldname">
-                {field.label}
-                :&nbsp;
-              </span>
-              {field.errorMsg}
-            </p>
-          ))}
-        </div>
+        <Errors error={errorFields} />
         <div className="row input-fields-row">
-          <label className="field-large">
-            <span>{fields.date.label}</span>
-            <input
-              type={fields.date.type}
-              id={fields.date.name}
-              value={input.date.value}
-              onChange={handleInput}
+          {inputFields.map((field, i) => (
+            <InputField
+              key={field.label}
               ref={entryRef}
+              j={i + 1} // data[0] contains the id
+              field={field}
+              isOptionalField={optionalFields.includes(field.label)}
+              input={input.model.data[i + 1]}
+              handleInput={handleInput}
+              formatField={formatDuration}
+              validateField={validateField}
+              clearErrorFields={clearErrorFields}
             />
-          </label>
-          <label className="field-large">
-            <span id="fn-duration">
-              {fields.duration.label}
-              &nbsp;
-              <a href="#fn-duration-text" className="footnote-index">
-                1
-              </a>
-            </span>
-            <input
-              type={fields.duration.type}
-              id={fields.duration.name}
-              pattern={fields.duration.pattern}
-              placeholder={fields.duration.placeholder}
-              value={input.duration.value}
-              onChange={handleInput}
-              onBlur={(e) => {
-                formatDuration(e);
-                validateField(e);
-              }}
-              className={input.duration.valid ? "" : "error"}
-              aria-invalid={input.duration.valid}
-              aria-errormessage={`error-msg-${fields.duration.name}`}
-            />
-          </label>
-          <label className="field-x-large">
-            <span>{fields.training.label}</span>
-            <select
-              id={fields.training.name}
-              value={input.training.value}
-              onChange={(e) => {
-                clearErrorFields(e);
-                handleInput(e);
-              }}
-            >
-              {Object.keys(fields.training.options).map((option) => (
-                <option key={fields.training.options[option].name}>
-                  {fields.training.options[option].label}
-                </option>
-              ))}
-            </select>
-          </label>
-          {Object.keys(dynamicFields).map((field) => (
-            <label key={dynamicFields[field].name} className="field-small">
-              <span>{dynamicFields[field].label}</span>
-              <input
-                type={dynamicFields[field].type}
-                id={dynamicFields[field].name}
-                pattern={dynamicFields[field].pattern}
-                placeholder={dynamicFields[field].placeholder}
-                value={input[field].value}
-                onChange={handleInput}
-                onBlur={validateField}
-                className={input[field].valid ? "" : "error"}
-                aria-invalid={input[field].valid}
-                aria-errormessage={`error-msg-${dynamicFields[field].name}`}
-              />
-            </label>
           ))}
-          <label className="field-large">
-            <span>{fields.notes.label}</span>
-            <input
-              type={fields.notes.type}
-              id={fields.notes.name}
-              placeholder={fields.notes.placeholder}
-              value={input.notes.value}
-              onChange={handleInput}
-              onBlur={validateField}
-              className={input.notes.valid ? "" : "error"}
-              aria-invalid={input.notes.valid}
-              aria-errormessage={`error-msg-${fields.duration.name}`}
-            />
-          </label>
           <div className="button-container">
             <button
               type="submit"
               className="button-primary button-row button-input"
             >
-              {logMode}
+              {`${input.mode.slice(0, 1)}${input.mode.slice(1).toLowerCase()}`}
             </button>
           </div>
         </div>
+        <Errors error={saveLogError} />
       </form>
-      <div>
-        <ol className="footnotes">
-          <li id="fn-duration-text">
-            Duration can be entered in these formats: <strong>H:MM </strong>
-            or <strong>H.HH </strong> or <strong>H,HH </strong>
-            or <strong>MMM</strong>. &nbsp;
-            <a
-              href="#fn-duration"
-              className="footnote-back-link"
-              title="Jump back to footnote"
-            >
-              ↩
-            </a>
-          </li>
-        </ol>
-      </div>
+      {inputFields.find((field) => field.footnote?.length) ? (
+        <div>
+          <ol className="footnotes">
+            {inputFields.map((field, i) => {
+              if (field.footnote?.length) {
+                return (
+                  <li key={field.label} id={`fn-${field.label}-text`}>
+                    <ReactMarkdown>{field.footnote}</ReactMarkdown>&nbsp;
+                    <a
+                      href={`#fn-${field.label}`}
+                      className="footnote-back-link"
+                      title="Jump back to footnote"
+                    >
+                      ↩
+                    </a>
+                  </li>
+                );
+              } else {
+                return null;
+              }
+            })}
+          </ol>
+        </div>
+      ) : null}
     </section>
   );
 }
-
-export default LogInput;

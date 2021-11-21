@@ -1,0 +1,14 @@
+@use "../conf";
+@use "../colours";
+
+.Errors p {
+  max-width: conf.$vertical-ui-max-width;
+  margin: conf.raster(1);
+  padding: conf.raster(1);
+  background: white;
+  color: colours.$content-error;
+  border-radius: conf.$roundness;
+  & .error-fieldname {
+    font-weight: 700;
+  }
+}

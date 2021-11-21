@@ -1,44 +1,40 @@
-import React from "react";
+import { Fragment } from "react";
 
-function LogStatsTotals({ totals, heading }) {
-  return (
-    <section className="totals">
-      <h3 className="ui-heading">{heading}</h3>
-      <dl>
-        {Object.keys(totals).map((field) => {
-          if (typeof totals[field] !== "function") {
-            return (
-              <React.Fragment key={field}>
-                <dt>{totals[field].label}</dt>
-                <dd className={totals[field].fields ? "" : "num"}>
-                  {totals[field].fields
-                    ? Object.keys(totals[field].fields).map((key) => {
-                        return (
-                          <dl key={key}>
-                            <dt>{totals[field].fields[key].label}</dt>
-                            <dd className="num">
-                              {`${totals[field].fields[key].result} ${
-                                totals[field].fields[key].unit
-                                  ? totals[field].fields[key].unit
-                                  : ""
-                              }`}
-                            </dd>
-                          </dl>
-                        );
-                      })
-                    : `${totals[field].result} ${
-                        totals[field].unit ? totals[field].unit : ""
-                      }`}
-                </dd>
-              </React.Fragment>
-            );
-          } else {
-            return null;
-          }
-        })}
-      </dl>
-    </section>
-  );
+export default function LogStatsTotals({ dataset, heading }) {
+  if (dataset?.length) {
+    return (
+      <section className="totals">
+        <h3 className="ui-heading">{heading}</h3>
+        <dl>
+          {dataset.map((field) => (
+            <Fragment key={field.label}>
+              <dt>{field.label}</dt>
+              <dd className={field.fields ? "" : "num"}>
+                <dl>
+                  <dt>Total</dt>
+                  <dd className="num">{`${field.total} ${
+                    field.unit ? field.unit : ""
+                  }`}</dd>
+                  {field.fields
+                    ? field.fields.map((subField) => (
+                        <Fragment key={subField.label}>
+                          <dt>{subField.label}</dt>
+                          <dd className="num">
+                            {`${subField.total} ${
+                              subField.unit ? subField.unit : ""
+                            }`}
+                          </dd>
+                        </Fragment>
+                      ))
+                    : null}
+                </dl>
+              </dd>
+            </Fragment>
+          ))}
+        </dl>
+      </section>
+    );
+  } else {
+    return null;
+  }
 }
-
-export default LogStatsTotals;

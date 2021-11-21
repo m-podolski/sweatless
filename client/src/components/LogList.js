@@ -1,64 +1,52 @@
-import db from "../database";
-import React, { useEffect } from "react";
+import { Fragment, useEffect, useCallback } from "react";
+import { useFetch } from "../hooks/useFetch";
 import LogListButtons from "./LogListButtons";
 import "../sass/components/_LogList.scss";
 
-function LogList({ logs, setLogs, editLog }) {
+export default function LogList({ logs, setLogs, setLogStats, editLog }) {
+  const [doFetch] = useFetch();
+
   function sortLogs(logs) {
     return logs.sort((a, b) => {
-      let first = a.date.value.split("-").join("");
-      let second = b.date.value.split("-").join("");
+      let first = a.data[1].value.split("-").join("");
+      let second = b.data[1].value.split("-").join("");
       return second - first;
     });
   }
 
-  // Dynamic fields are sorted into the others here only to avoid having the actual data in arrays
-  function sortProperties(log) {
-    const order = ["date", "duration", "training", null, "notes"];
-    return order.flatMap((orderProp) => {
-      if (orderProp === null) {
-        return Object.keys(log).filter((property) => {
-          return order.includes(property) === false;
-        });
-      } else {
-        return orderProp;
-      }
-    });
-  }
-
-  function deleteLog(logKey) {
-    removeDeletedRecords();
-    const clearedLogs = logs.filter(
-      (log) => log.hasOwnProperty("deleted") === false,
-    );
-    const markedLogs = clearedLogs.map((log) =>
-      log.key === logKey ? { ...log, deleted: true } : log,
-    );
-    setLogs(markedLogs);
-  }
-
-  function restoreLog(logKey) {
-    const { deleted, ...restoredLog } = logs.find((log) => log.key === logKey);
+  function restoreLog(logId) {
+    const restoredLog = logs.find((log) => log.data[0].value === logId);
+    restoredLog.deleted = false;
     const restoredLogs = logs.map((log) =>
-      log.key === logKey ? restoredLog : log,
+      log.data[0].value === logId ? restoredLog : log,
     );
     setLogs(restoredLogs);
   }
 
-  function removeDeletedRecords() {
-    const logPrevDeleted = logs.find((log) => log.hasOwnProperty("deleted"));
+  const removeDeletedLogs = useCallback(async () => {
+    const logPrevDeleted = logs.find((log) => log.deleted === true);
     if (logPrevDeleted) {
-      (async function deleteRecord(log) {
-        await db.logs.delete(log.key.value);
-      })(logPrevDeleted);
+      const { statistics } = await doFetch(
+        "DELETE",
+        `logs/${logPrevDeleted.data[0].value}`,
+      );
+      setLogStats(statistics);
     }
+  }, [doFetch, logs, setLogStats]);
+
+  function deleteLog(logId) {
+    removeDeletedLogs();
+    const clearedLogs = logs.filter((log) => log.deleted === false);
+    const markedLogs = clearedLogs.map((log) =>
+      log.data[0].value === logId ? { ...log, deleted: true } : log,
+    );
+    setLogs(markedLogs);
   }
 
   useEffect(() => {
-    window.addEventListener("beforeunload", removeDeletedRecords);
-    return () =>
-      window.removeEventListener("beforeunload", removeDeletedRecords);
-  });
+    window.addEventListener("beforeunload", removeDeletedLogs);
+    return () => window.removeEventListener("beforeunload", removeDeletedLogs);
+  }, [removeDeletedLogs]);
 
   if (logs.length > 0) {
     return (
@@ -67,16 +55,16 @@ function LogList({ logs, setLogs, editLog }) {
         <ul>
           {sortLogs(logs).map((log) => (
             <li
-              key={log.key.value}
+              key={log.data[0].value}
               className={`row ${log.deleted ? "log-deleted" : ""}`}
             >
               <dl>
-                {sortProperties(log).map((property, i) =>
-                  property === "key" ? null : (
-                    <React.Fragment key={i}>
-                      <dt>{log[property].label}</dt>
-                      <dd>{log[property].value}</dd>
-                    </React.Fragment>
+                {log.data.map((field) =>
+                  field.label === "id" ? null : (
+                    <Fragment key={field.label}>
+                      <dt>{field.label}</dt>
+                      <dd>{field.value}</dd>
+                    </Fragment>
                   ),
                 )}
               </dl>
@@ -95,5 +83,3 @@ function LogList({ logs, setLogs, editLog }) {
     return null;
   }
 }
-
-export default LogList;

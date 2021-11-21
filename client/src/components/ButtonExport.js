@@ -1,6 +1,12 @@
-import { dateTime } from "../library";
+import { dateTime } from "../util/dateAndTime";
 
-function ButtonExport({ exportStatus, handleExport, file, label, className }) {
+export default function ButtonExport({
+  exportStatus,
+  handleExport,
+  file,
+  label,
+  className,
+}) {
   switch (exportStatus) {
     case "loading":
       return <div className="button-loading">Loading...</div>;
@@ -25,5 +31,3 @@ function ButtonExport({ exportStatus, handleExport, file, label, className }) {
       );
   }
 }
-
-export default ButtonExport;

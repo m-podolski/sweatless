@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "../sass/components/_Footer.scss";
 
-function Footer() {
+export default function Footer() {
   return (
     <footer className="Footer">
       <section aria-labelledby="contactinfo-heading" className="contactinfo">
@@ -67,5 +67,3 @@ function Footer() {
     </footer>
   );
 }
-
-export default Footer;
