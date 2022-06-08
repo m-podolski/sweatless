@@ -1,21 +1,13 @@
 # Commit
-Set up log statistics services
+Dockerize app
 
 ## Backlog
 
-refactor LogStats with new Schema and pull into backend
-  [x] totals
-  [x] proportions
-  [x] timeline
-  [x] graph
-  [x] set up log statistics as a service
-  [x] add/subtract methods
-
-nestJS + typescript
-  [ ] fix using uppercase props in logs
-
-client
+frontend
+  [ ] adapt frontend to new user model
+    [ ] import input-types config
   [ ] error boundary for failed sign in / not signed in
+  [ ] 404 page
   [ ] fix/rewrite diagrams
   [ ] fix patterns in charts (map pattern to type consistently)
 
@@ -28,11 +20,11 @@ styles
     [ ] fix on settings page
     [ ] center footer/(nav) positioning
 
-training type configurator
-
 exercise/workout frontend
 
 > 0.1.0
+
+training type configurator
 
 logList
   pagination + "show more" button

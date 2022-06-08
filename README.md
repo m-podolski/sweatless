@@ -1,4 +1,4 @@
-![Sweatlogo](./client/src/assets/svg/sweatlogo-tagline-paths.svg)
+![Sweatlogo](./frontend/src/assets/svg/sweatlogo-tagline-paths.svg)
 
 ## What is Sweatless?
 Sweatless is a collection of tools for tracking your training and setting up workout plans from your own collection of exercises in a quick and easy way. It is based on my experience with using Google Sheets for this purpose and bundles the functionality I needed for my strength and running workouts into a simpler and cleaner user interface.

@@ -5,18 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch with Nodemon",
-      "type": "pwa-node",
-      "console": "externalTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "program": "${workspaceFolder}/server/app.js",
-      "request": "launch",
-      "restart": true,
-      "runtimeExecutable": "nodemon",
-      "skipFiles": ["<node_internals>/**"]
-    },
-    {
-      "name": "Attach to Process",
+      "name": "Attach",
       "type": "node",
       "request": "attach",
       "port": 9229,

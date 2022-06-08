@@ -4,8 +4,9 @@
   "author": "Malte Podolski <malte.podolski@web.de>",
   "description": "Sweatless digital sport utilities",
   "workspaces": [
-    "./server",
-    "./client"
+    "./OLD-BACKEND",
+    "./backend",
+    "./frontend"
   ],
   "main": "./server/app.js",
   "scripts": {
