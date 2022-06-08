@@ -17,11 +17,11 @@ export default function jwt(passport) {
         },
       },
       (jwtPayload, done) => {
-        const user = jwtPayload;
         const expDate = new Date(jwtPayload.exp * 1000);
         if (expDate < new Date()) {
           return done(new AuthenticationError("USER", ["token"]), false);
         }
+        const user = jwtPayload;
         return done(null, user);
       },
     ),

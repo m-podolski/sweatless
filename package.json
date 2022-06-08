@@ -5,6 +5,7 @@
   "description": "Sweatless digital sport utilities",
   "workspaces": [
     "./server",
+    "./nestjs",
     "./client"
   ],
   "main": "./server/app.js",

@@ -1,21 +1,13 @@
 # Commit
-Set up log statistics services
+
 
 ## Backlog
 
-refactor LogStats with new Schema and pull into backend
-  [x] totals
-  [x] proportions
-  [x] timeline
-  [x] graph
-  [x] set up log statistics as a service
-  [x] add/subtract methods
-
-nestJS + typescript
-  [ ] fix using uppercase props in logs
-
 client
+  [ ] adapt client to new user model
+    [ ] import input-types config
   [ ] error boundary for failed sign in / not signed in
+  [ ] 404 page
   [ ] fix/rewrite diagrams
   [ ] fix patterns in charts (map pattern to type consistently)
 

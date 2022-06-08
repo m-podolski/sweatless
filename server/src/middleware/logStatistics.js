@@ -41,8 +41,8 @@ export async function updateLogStatistics(req, res, next) {
       case "DELETE":
         totals.subtract(prevLog);
         proportions.subtract(logsCount, prevLog.Training);
-        timeline.subtract(req.body);
-        graph.subtract(req.body);
+        timeline.subtract(prevLog);
+        graph.subtract(prevLog);
         break;
       case "PUT":
         totals.subtract(prevLog);
