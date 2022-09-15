@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+      secrets:
+        - backend-secrets
+    volumes:
+      - /home/malte/dev/sweatless/backend:/app
+      - be-node-modules:/app/node_modules
+    ports:
+      - "3001:3001"
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.dev
+  #   depends_on:
+  #     - backend
+  #   volumes:
+  #     - /home/malte/dev/sweatless/frontend:/app
+  #     - fe-node-modules:/app/node_modules
+  #   ports:
+  #     - "3000:3000"
+
+volumes:
+  be-node-modules:
+  fe-node-modules:
+
+secrets:
+  backend-secrets:
+    file: ./backend/.env

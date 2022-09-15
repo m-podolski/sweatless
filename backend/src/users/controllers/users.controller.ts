@@ -33,7 +33,6 @@ import { User, UserSettings } from "../models/user.schema";
 import { UserService } from "../services/user.service";
 
 @Controller("users")
-@UseGuards(AuthGuard("jwt"))
 @UseFilters(MongooseErrorFilter, MongoDbErrorFilter)
 export class UsersController {
   constructor(
@@ -87,12 +86,14 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(AuthGuard("jwt"))
   async findAll(): Promise<UsersResponse> {
     const users = await this.userService.findAll();
     return { message: "Found users", users };
   }
 
   @Post()
+  @UseGuards(AuthGuard("jwt"))
   async createOne(@Body() body: User): Promise<UsersResponse> {
     const { id, user, token, expires } = await this.userService.createOne(body);
 
@@ -106,6 +107,7 @@ export class UsersController {
   }
 
   @Get(":userId")
+  @UseGuards(AuthGuard("jwt"))
   async findOne(@Param("userId") id: string): Promise<UsersResponse> {
     const user = await this.userService.findOne(id);
 
@@ -116,6 +118,7 @@ export class UsersController {
   }
 
   @Put(":userId")
+  @UseGuards(AuthGuard("jwt"))
   async updateOne(
     @Param("userId") id: string,
     @Body() body: GenericUserUpdateDto,
@@ -132,6 +135,7 @@ export class UsersController {
   }
 
   @Delete(":userId")
+  @UseGuards(AuthGuard("jwt"))
   async deleteOne(@Param("userId") id: string): Promise<UsersResponse> {
     const user = await this.userService.deleteOne(id);
 
@@ -145,6 +149,7 @@ export class UsersController {
   }
 
   @Patch(":userId/settings")
+  @UseGuards(AuthGuard("jwt"))
   async updateSettings(
     @Param("userId") id: string,
     @Query("recalcStatistics") recalcStatistics: string,

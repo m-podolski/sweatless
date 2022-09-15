@@ -15,6 +15,8 @@ import Errors from "./components/Errors";
 import { makeInputModelFromDB } from "./util/models";
 import "./sass/App.scss";
 
+import Test from "./ts-test";
+
 export default function App() {
   const navigate = useNavigate();
   const [settings, setSettings] = useState(null);
@@ -61,6 +63,7 @@ export default function App() {
 
   return (
     <Fragment>
+      <Test></Test>
       <Nav />
       <Errors error={fetchError} />
       <Routes>

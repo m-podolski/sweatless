@@ -2,7 +2,9 @@ import { Injectable } from "@nestjs/common";
 
 import { config as envConfig } from "dotenv";
 
-envConfig();
+if (process.env.NODE_ENV) {
+  if (["development", "testing"].includes(process.env.NODE_ENV)) envConfig();
+}
 
 export enum AppMode {
   DEV = "development",
@@ -14,8 +16,8 @@ export enum AppMode {
 export class AppModuleConfiguration {
   env = {
     mode: process.env.NODE_ENV,
-    host: `${process.env.HOST}:${process.env.PORT}`,
-    port: process.env.PORT,
+    host: "http://localhost:3001",
+    port: 3001,
     dbURL: process.env.DB_URL,
     packageDistDirectory: "backend/dist",
     clientDistDirectory: "frontend/build",

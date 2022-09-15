@@ -3,13 +3,24 @@
 ## What is Sweatless?
 Sweatless is a collection of tools for tracking your training and setting up workout plans from your own collection of exercises in a quick and easy way. It is based on my experience with using Google Sheets for this purpose and bundles the functionality I needed for my strength and running workouts into a simpler and cleaner user interface.
 
+## Development
+
 ### Planned features
 - Configurable training type
 - Exercise database and workout plans
 
-### Training logging and statistics
+### Structure
+Frontend and backend are set up as seperate folders on the top level to ease navigation, enable easy development with docker-compose and npm-workspaces, prevent conflicts with different IDE-Plugin configurations (esp. ESLint and Prettier) in nested directories and to make possible future deployment as microservices easier (although not yet intended). To accomodate this with docker the docker compose file uses two seperate Sub-Dockerfiles in each directory while the production image is built with the top-level file and merges the build-files of the frontend into the backend.
 
-Conceptually this is a **complement to your usual running-/sports-tracking mobile apps** which give you a lot of quantitative metrics of individual activities and visualisations of those but lack in the qualitative dimension i.e. what training goal a workout actually has. Even when you don't have particularly ambitious goals you will quickly come to a point where you don't do the same kind of training every time (e.g. slow runs that are longer and faster ones over a short distance). Only when you pair your individual workouts with the other numbers you get **information that is actually useful**. Now you can answer questions like *"Did I neglect my high-intensity workouts last month?"* with ease. This is why the core of Sweatless are **configurable training types**. Your entire log history is calculated into a handful of percentages and totals that help you decide what to do on the day without following a strict plan. They also provide some visualisation of your progress to help keep you motivated without overdoing metrics-based self-analysis. Another function that I found very useful is being able to combine your logs quickly and easily with free text notes. Especially when you are having injury problems this can be very revealing and **helpful when talking to doctors**.
+### Deployment
+To run in production a JWT-secret and the MongoDB-URL need to be passed as environment variables:
 
-Feel free to [contact me](#contactinfo-heading) with ideas for improvement.
+`
+DB_URL="mongodb+srv://sweatless-1:<PASSWORD>@<USER>.zqz7g.mongodb.net/<DATABASE>?retryWrites=true&w=majority"
+`
 
+`
+JWT_SECRET="<HASH>"
+`
+### Issues
+- Live-reload via react-scripts/webpack-dev-server currently doesn't work inside a container (possibly because of max_file_watchers?)

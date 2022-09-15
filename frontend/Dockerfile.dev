@@ -1,0 +1,13 @@
+# syntax=docker/dockerfile:1
+
+FROM node:16.17-alpine3.16
+ENV NODE_ENV=development
+
+WORKDIR /app
+RUN npm i -g npm-check-updates
+
+COPY package.json ./
+RUN npm i
+
+EXPOSE 3000
+CMD npm start
